@@ -32,7 +32,7 @@ SELECT previous FROM letter WHERE id = 1;
 
 Copia ese JSON a un archivo y restáuralo desde el panel. No elimines el proyecto, la base D1 ni el binding DB. Mantén el mismo proyecto para conservar la URL. La cuenta debe permanecer activa y los límites gratuitos aplican: no hay garantía de disponibilidad eterna. Si agotas cuotas diarias, las operaciones de la API pueden fallar temporalmente, sin borrar por ello la carta.
 
-Las contraseñas no se publican. Las sesiones duran una hora, usan cookies HttpOnly/Secure y quedan registradas con tokens hasheados en D1. Hay límite de ocho intentos por IP cada quince minutos. La carta es pública; la edición es privada. Cerrar sesión revoca la sesión actual.
+Las contraseñas no se publican. Las sesiones duran una hora, usan cookies HttpOnly/Secure y quedan registradas con tokens hasheados en D1. Después de ocho intentos incorrectos por IP en quince minutos la API responde 429 a credenciales incorrectas; las credenciales correctas siempre permiten entrar y limpian ese contador. Esto no impide seguir comprobando contraseñas y no sustituye una protección contra ataques automatizados. La sesión no está vinculada a una red. La carta es pública; la edición es privada. Cerrar sesión revoca la sesión actual.
 
 Documentación oficial:
 - https://developers.cloudflare.com/pages/framework-guides/deploy-anything/

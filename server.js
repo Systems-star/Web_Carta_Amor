@@ -27,10 +27,9 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === '/api/login' && req.method === 'POST') {
    const ip = req.socket.remoteAddress, now = Date.now(); let a = attempts.get(ip);
    if (!a || now > a.until) { a = { count:0, until:now + 15*60*1000 }; attempts.set(ip,a); }
-   if (a.count >= 8) return json(res,429,{error:'Demasiados intentos. Espera 15 minutos.'});
    const d = await body(req); a.count++;
    const hash = crypto.scryptSync(String(d.password || ''),salt,64);
-   if (d.username !== username || !crypto.timingSafeEqual(hash,passwordHash)) return json(res,401,{error:'Usuario o contraseña incorrectos.'});
+   if (d.username !== username || !crypto.timingSafeEqual(hash,passwordHash)) return json(res,a.count>8?429:401,{error:a.count>8?'Demasiados intentos incorrectos. Comprueba tus datos; con la contraseña correcta puedes entrar.':'Usuario o contraseña incorrectos.'});
    attempts.delete(ip); const token=crypto.randomBytes(32).toString('hex'); sessions.set(token,now+3600000);
    res.setHeader('Set-Cookie',`amor_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=3600${production || process.env.COOKIE_SECURE === 'true' ? '; Secure' : ''}`); return json(res,200,{ok:true});
   }

@@ -28,6 +28,10 @@ test('Cloudflare: autenticación, guardado persistente, copia anterior y cierre 
   r=await handle(req('letter','PUT',initial,cookie),env);assert.equal(r.status,401);
   for(let i=0;i<8;i++){r=await handle(req('login','POST',{username:'autor',password:'mal'}),env);assert.equal(r.status,401);}
   r=await handle(req('login','POST',{username:'autor',password:'mal'}),env);assert.equal(r.status,429);
+  r=await handle(req('login','POST',{username:'autor',password:env.ADMIN_PASSWORD}),env);assert.equal(r.status,200,'La contraseña correcta permite entrar incluso con intentos fallidos desde la misma IP');
+  const mobileCookie=r.headers.get('set-cookie').split(';')[0];
+  const mobileRequest=req('session','GET',undefined,mobileCookie);mobileRequest.headers.set('CF-Connecting-IP','198.51.100.9');
+  r=await handle(mobileRequest,env);assert.equal((await r.json()).authenticated,true,'La sesión funciona aunque cambie la red');
   r=await handle(req('letter'),{});assert.equal(r.status,503);
  }finally{sqlite.close();}
 });

@@ -22,9 +22,13 @@ export async function handle(request,env){
   if(route==='/api/login'&&method==='POST'){
    const d=await body(request),ip=await digest(request.headers.get('CF-Connecting-IP')||'local');
    const result=await env.DB.prepare('INSERT INTO attempts (ip,count,expires) VALUES (?,1,?) ON CONFLICT(ip) DO UPDATE SET count = CASE WHEN expires <= ? THEN 1 ELSE count + 1 END, expires = CASE WHEN expires <= ? THEN excluded.expires ELSE expires END RETURNING count').bind(ip,now+900000,now,now).first();
-   if(result.count>8)return json(429,{error:'Demasiados intentos. Espera 15 minutos.'});
    const correct=await equal(String(d.password||''),env.ADMIN_PASSWORD);
-   if(d.username!==env.ADMIN_USER||!correct)return json(401,{error:'Usuario o contraseña incorrectos.'});
+   // Network addresses can be shared or change on mobile networks. A valid
+   // credential must not be rejected because another attempt used that IP.
+   if(d.username!==env.ADMIN_USER||!correct){
+    if(result.count>8)return json(429,{error:'Demasiados intentos incorrectos. Comprueba tus datos; con la contraseña correcta puedes entrar.'});
+    return json(401,{error:'Usuario o contraseña incorrectos.'});
+   }
    const raw=hex(crypto.getRandomValues(new Uint8Array(32)));
    await env.DB.batch([
     env.DB.prepare('DELETE FROM sessions WHERE expires <= ?').bind(now),
