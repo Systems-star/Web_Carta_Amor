@@ -1,5 +1,7 @@
 # Una carta para ti
 
+**Publicación gratuita:** la alternativa preparada para Cloudflare Pages + D1 está explicada en [CLOUDFLARE.md](CLOUDFLARE.md). Las indicaciones de disco persistente de este README se refieren solo al servidor Node.js (por ejemplo, Render).
+
 Web local para editar en Visual Studio Code. Necesita Node.js 22 o posterior. No requiere instalar paquetes.
 
 1. Abre esta carpeta en Visual Studio Code.
